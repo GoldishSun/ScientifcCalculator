@@ -12,22 +12,34 @@ const ScientificCalculator = class SC {
     this.expression = null;
   }  
   setInfixToPostFix() {
-    const operatorStack = [];
-    for(let g = 0; g < this.splitedExpression.length; ++ g) {
-      const tmp = this.splitedExpression[g];
-      if (this.isOperator(tmp)) {
-        if (operatorStack.length > 0) {
-          while(this.getPriority(operatorStack[operatorStack.length - 1]) <= this.getPriority(tmp))
-            this.postfixExpression.push(operatorStack.pop());
-        }
-        operatorStack.push(tmp);
+    // 중위표기법을 후위표기법으로 변환
+    let stack = [];
+    for (let i = 0; i < this.splitedExpression.length; ++i) {
+      let tmp = this.splitedExpression[i];
+      if (typeof tmp === "number") {
+        this.postfixExpression.push(tmp);
         continue;
       }
-
-      this.postfixExpression.push(tmp);
+      if (tmp === "(") {
+        stack.push(tmp);
+        continue;
+      }
+      if (tmp === ")") {
+        while (stack.length > 0 && stack[stack.length - 1] !== "(") {
+          this.postfixExpression.push(stack.pop());
+        }
+        stack.pop();
+        continue;
+      }
+      while (stack.length > 0 && this.getPriority(stack[stack.length - 1]) <= this.getPriority(tmp)) {
+        const tmp = stack.pop();
+        if (tmp !== "(") this.postfixExpression.push(tmp);
+      }
+      stack.push(tmp);
     }
-    while(operatorStack.length > 0)
-      this.postfixExpression.push(operatorStack.pop());
+    while (stack.length > 0) {
+      this.postfixExpression.push(stack.pop());
+    }
   }
   setSplitedExpression() {
     if (this.expression.length < 1) return ;
