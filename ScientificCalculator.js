@@ -14,24 +14,20 @@ const ScientificCalculator = class SC {
   setInfixToPostFix() {
     const operatorStack = [];
     for(let g = 0; g < this.splitedExpression.length; ++ g) {
-      let tmp = this.splitedExpression[g];
+      const tmp = this.splitedExpression[g];
       if (this.isOperator(tmp)) {
-        if (operatorStack.length === 0) {
-          operatorStack.push(tmp);
-          continue;
+        if (operatorStack.length > 0) {
+          while(this.getPriority(operatorStack[operatorStack.length - 1]) <= this.getPriority(tmp))
+            this.postfixExpression.push(operatorStack.pop());
         }
-        
-        const curr_priority = this.getPriority(tmp);
-        while(operatorStack.length > 0) {
-          const prev = operatorStack.pop();
-          const prev_priority = this.getPriority(prev);
-
-        }
+        operatorStack.push(tmp);
         continue;
       }
 
       this.postfixExpression.push(tmp);
     }
+    while(operatorStack.length > 0)
+      this.postfixExpression.push(operatorStack.pop());
   }
   setSplitedExpression() {
     if (this.expression.length < 1) return ;
@@ -72,18 +68,21 @@ const ScientificCalculator = class SC {
         return 0;
       case "*":
       case "/":
-        return 1;
+        return 5;
       case "+":
       case "-":
-        return 2;
+        return 10;
       default:
         return 99;
     }
   }
+  calc() {
+    
+  }
 };
 
 const sc = new ScientificCalculator();
-sc.input('1+2+3+4+556/23-23');
+sc.input('(4+2)*2'); // (4+2)*2 => 42+2*
 sc.setSplitedExpression();
 sc.setInfixToPostFix();
 console.log(sc.postfixExpression);
